@@ -5,7 +5,9 @@ const db = require('./data/db');
 const server = express();
 server.use(express.json());
 
-// GET users
+// ============ GET REQUESTS ===================
+
+// GET all users
 server.get('/api/users', (req, res) => {
     db.find()
     .then(users => res.status(200).json(users))
@@ -20,17 +22,20 @@ server.get('/api/users/:id', (req, res) => {
     const id = req.params.id;
     db.findById(id)
     .then(user => {
-        user ? res.status(200).json(user) : res.status(404).json({ error: 'The user does not exist'})
+        user ? res.status(200).json(user) : res.status(404).json({  message: "The user with the specified ID does not exist." })
     })
     .catch(err => {
         res.status(500).json({ error: "The user information could not be retrieved." })
     })
 })
 
+
+// ============== POST REQUESTS ==============
+
 server.post('/api/users', (req, res) => {
     const userObj = req.body;
 
-    !userObj.name || !userObj.bio ?  res.status(400).json({ error: 'Please include name and bio'}) : db.insert(userObj)
+    !userObj.name || !userObj.bio ?  res.status(400).json({ error: "Please provide name and bio for the user."}) : db.insert(userObj)
     
     .then(user => {
         console.log(userObj)
@@ -42,7 +47,30 @@ server.post('/api/users', (req, res) => {
     })
 })
 
+// ============== PUT REQUESTS ===========
+// PUT a user by id
 
+server.put('/api/users/:id', (req, res) => {
+    const { id } = req.params;
+    const { name, bio } = req.body;
+
+   if ( !name || !bio) res.status(400).json({ errorMessage: "Please provide name and bio for the user." })
+
+    db.update(id, { name, bio })
+    .then(updated => {
+        if (updated) {
+           db.findById(id)
+           .then(user => res.status(200).json(user))
+           .catch(err => {
+               console.log(err);
+           })
+        } else {
+            res.status(404).json({ message: "The user with the specified ID does not exist." })
+        }
+    })
+    .catch(err => res.status(500).json({ error: "The user could not be modified "}))
+    
+})
 
 
 const port = 8000;

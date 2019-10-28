@@ -69,9 +69,25 @@ server.put('/api/users/:id', (req, res) => {
         }
     })
     .catch(err => res.status(500).json({ error: "The user could not be modified "}))
-    
 })
 
+// ========== DELETE REQUESTS =================
+// Delete a user by id
+server.delete('/api/users/:id', (req, res) => {
+    const id = req.params.id;
+    db.findById(id)
+    .then(user => {
+        if (user) {
+            db.remove(id)
+                .then(removed => {
+            if (removed ) res.status(200).json({ message: "User removed" })
+            })
+        } else {
+            res.status(404).json({ message: "The user with the specified ID does not exist." })
+        }
+    })
+    .catch(err => res.status(500).json({ error: "The user could not be removed" }))
+})
 
 const port = 8000;
 server.listen(port, () => console.log(`\n=== Server listening on port ${port} ===\n`))

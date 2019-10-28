@@ -17,10 +17,13 @@ server.get('/api/users', (req, res) => {
 
 server.post('/api/users', (req, res) => {
     const userObj = req.body;
-    db.insert(userObj)
+
+    !userObj.name || !userObj.bio ?  res.status(400).json({ error: 'Please include name and bio'}) : db.insert(userObj)
+    
+
     .then(user => {
         console.log(userObj)
-        !userObj.name || !userObj.bio ? res.status(400).json({ error: 'Please include name and bio'}) : res.status(201).json(user.id);
+        res.status(201).json(user.id);
     })
     .catch(err => {
         console.log(err)

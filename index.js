@@ -8,7 +8,10 @@ server.use(express.json());
 server.get('/api/users', (req, res) => {
     db.find()
     .then(users => res.status(200).json(users))
-    .catch(err => console.log(err))
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({ error: 'failed to retrieve users'})
+    })
 })
 
 
